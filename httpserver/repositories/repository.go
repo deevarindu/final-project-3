@@ -1,16 +1,7 @@
-package repository
+package repositories
 
-import "github.com/gin-gonic/gin"
+import "github.com/deevarindu/final-project-3/httpserver/repositories/models"
 
-type Router struct {
-	router *gin.Engine
-}
-
-func NewRouter(router *gin.Engine) *Router {
-	return &Router{router: router}
-}
-
-func (r *Router) Start(port string) {
-
-	r.router.Run(port)
+type UserRepository interface {
+	GetUsers() (*[]models.User, error)
 }

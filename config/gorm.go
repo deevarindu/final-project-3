@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 
+	"github.com/deevarindu/final-project-3/httpserver/repositories/models"
 	"github.com/jinzhu/gorm"
 
 	_ "github.com/lib/pq"
@@ -28,6 +29,8 @@ func CreateConnection() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	db.Debug().AutoMigrate(&models.User{}, &models.Task{}, &models.Category{})
 
 	return db, nil
 }
