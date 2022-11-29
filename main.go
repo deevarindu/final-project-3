@@ -19,8 +19,12 @@ func main() {
 	userSvc := services.NewUserSvc(userRepository)
 	userHandler := controllers.NewUserController(userSvc)
 
+	categoryRepository := gorm.NewCategoryRepository(db)
+	categorySvc := services.NewCategorySvc(categoryRepository)
+	categoryHandler := controllers.NewCategoryController(categorySvc)
+
 	router := gin.Default()
-	app := routes.NewRouter(router, userHandler)
+	app := routes.NewRouter(router, userHandler, categoryHandler)
 
 	app.Start(":5000")
 }
