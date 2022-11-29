@@ -9,3 +9,7 @@ type UserRepository interface {
 type CategoryRepository interface {
 	GetCategories() (*[]models.Category, error)
 }
+
+type TaskRepository interface {
+	GetTasks() (*[]models.Task, error)
+}
