@@ -31,3 +31,27 @@ func (u *userRepository) GetUsers() (*[]models.User, error) {
 
 	return &users, nil
 }
+
+func (u *userRepository) Register(user *models.User) error {
+	err := u.db.Create(user).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *userRepository) UpdateUser(user *models.User) error {
+	err := u.db.Save(user).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *userRepository) DeleteUser(user *models.User) error {
+	err := u.db.Delete(user).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

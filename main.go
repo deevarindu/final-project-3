@@ -30,5 +30,5 @@ func main() {
 	router := gin.Default()
 	app := routes.NewRouter(router, userHandler, categoryHandler, taskHandler)
 
-	app.Start(":5000")
+	app.Start(":8000")
 }

@@ -20,7 +20,7 @@ func NewCategoryRepository(db *gorm.DB) repositories.CategoryRepository {
 
 func (c *categoryRepository) GetCategories() (*[]models.Category, error) {
 	var categories []models.Category
-	err := c.db.Find(&categories).Error
+	err := c.db.Preload("Tasks").Find(&categories).Error
 	if err != nil {
 		return nil, err
 	}
@@ -30,4 +30,28 @@ func (c *categoryRepository) GetCategories() (*[]models.Category, error) {
 	}
 
 	return &categories, nil
+}
+
+func (c *categoryRepository) CreateCategory(category *models.Category) error {
+	err := c.db.Create(category).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *categoryRepository) UpdateCategory(category *models.Category) error {
+	err := c.db.Save(category).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *categoryRepository) DeleteCategory(id int) error {
+	err := c.db.Delete(&models.Category{ID: &id}).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

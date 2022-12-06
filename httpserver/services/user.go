@@ -2,10 +2,13 @@ package services
 
 import (
 	"database/sql"
+	"strings"
 
+	"github.com/deevarindu/final-project-3/httpserver/controllers/params"
 	"github.com/deevarindu/final-project-3/httpserver/repositories"
 	"github.com/deevarindu/final-project-3/httpserver/repositories/models"
 	"github.com/deevarindu/final-project-3/httpserver/views"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserSvc struct {
@@ -40,4 +43,94 @@ func parseModelToGetUsers(mod *[]models.User) *[]views.GetUsers {
 		})
 	}
 	return &u
+}
+
+func (u *UserSvc) Register(req *params.UserRegisterRequest) *views.Response {
+	user := parseRequestToModelRegister(req)
+	user.Password = hashedPassword(user.Password)
+
+	id := 1
+	if users, err := u.repo.GetUsers(); err == nil {
+		id = len(*users) + 1
+	}
+	user.ID = &id
+
+	err := u.repo.Register(user)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate") {
+			return views.DataConflictResponse(err)
+		}
+		return views.InternalServerErrorResponse(err)
+	}
+
+	return views.SuccessCreateResponse(user, "Success register user")
+}
+
+func hashedPassword(password string) string {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		panic(err)
+	}
+	return string(hash)
+}
+
+func parseRequestToModelRegister(req *params.UserRegisterRequest) *models.User {
+	return &models.User{
+		FullName: req.FullName,
+		Email:    req.Email,
+		Password: req.Password,
+		Role:     req.Role,
+	}
+}
+
+func (u *UserSvc) FindUserByEmail(email string) *models.User {
+	users, _ := u.repo.GetUsers()
+	for _, user := range *users {
+		if strings.EqualFold(user.Email, email) {
+			return &user
+		}
+	}
+	return nil
+}
+
+func (u *UserSvc) FindUserById(id *int) *models.User {
+	users, _ := u.repo.GetUsers()
+	for _, user := range *users {
+		if *user.ID == *id {
+			return &user
+		}
+	}
+	return nil
+}
+
+func (u *UserSvc) UpdateUser(req *params.UserUpdateRequest, id *int) *views.Response {
+	user := u.FindUserById(id)
+	if user == nil {
+		return views.DataNotFoundResponse(nil)
+	}
+
+	user.FullName = req.FullName
+	user.Email = req.Email
+
+	err := u.repo.UpdateUser(user)
+	if err != nil {
+		return views.InternalServerErrorResponse(err)
+	}
+
+	return views.SuccessUpdateResponse(user, "Success update user")
+}
+
+func (u *UserSvc) DeleteUser(id *int) *views.Response {
+	user := u.FindUserById(id)
+	if user == nil {
+		return views.DataNotFoundResponse(nil)
+	}
+
+	err := u.repo.DeleteUser(user)
+	if err != nil {
+		return views.InternalServerErrorResponse(err)
+	}
+
+	return views.SuccessDeleteResponse("Your account has been success deleted")
 }

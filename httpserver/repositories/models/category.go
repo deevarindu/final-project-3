@@ -7,4 +7,5 @@ type Category struct {
 	Type      string    `json:"type" gorm:"notNull"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Tasks     []Task    `gorm:"foreignkey:CategoryId"`
 }
